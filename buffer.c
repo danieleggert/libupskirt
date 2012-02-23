@@ -284,7 +284,7 @@ vbufprintf(struct buf *buf, const char *fmt, va_list ap) {
 		return;
 	va_copy(ap_save, ap);
 	n = vsnprintf(buf->data + buf->size, buf->asize - buf->size, fmt, ap);
-	if (n >= buf->asize - buf->size) {
+	if (((size_t) n) >= buf->asize - buf->size) {
 		if (!bufgrow (buf, buf->size + n + 1)) return;
 		n = vsnprintf (buf->data + buf->size,
 				buf->asize - buf->size, fmt, ap_save); }

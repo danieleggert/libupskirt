@@ -29,6 +29,8 @@
 
 #define MKD_LI_END 8	/* internal list flag */
 
+#define UNUSED __attribute__((unused))
+
 
 /***************
  * LOCAL TYPES *
@@ -421,7 +423,7 @@ parse_emph3(struct buf *ob, struct render *rndr,
 /* char_emphasis • single and double emphasis parsing */
 static size_t
 char_emphasis(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+				char *data, size_t UNUSED offset, size_t size) {
 	char c = data[0];
 	size_t ret;
 	if (size > 2 && data[1] != c) {
@@ -446,7 +448,7 @@ char_emphasis(struct buf *ob, struct render *rndr,
 /* char_linebreak • '\n' preceded by two spaces (assuming linebreak != 0) */
 static size_t
 char_linebreak(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+				char *data, size_t offset, size_t UNUSED size) {
 	if (offset < 2 || data[-1] != ' ' || data[-2] != ' ') return 0;
 	/* removing the last space from ob and rendering */
 	if (ob->size && ob->data[ob->size - 1] == ' ') ob->size -= 1;
@@ -456,7 +458,7 @@ char_linebreak(struct buf *ob, struct render *rndr,
 /* char_codespan • '`' parsing a code span (assuming codespan != 0) */
 static size_t
 char_codespan(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+				char *data, size_t UNUSED offset, size_t size) {
 	size_t end, nb = 0, i, f_begin, f_end;
 
 	/* counting the number of backticks in the delimiter */
@@ -491,7 +493,7 @@ char_codespan(struct buf *ob, struct render *rndr,
 /* char_escape • '\\' backslash escape */
 static size_t
 char_escape(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+				char *data, size_t UNUSED offset, size_t size) {
 	struct buf work = { 0, 0, 0, 0, 0 };
 	if (size > 1) {
 		if (rndr->make.normal_text) {
@@ -506,7 +508,7 @@ char_escape(struct buf *ob, struct render *rndr,
 /* valid entities are assumed to be anything mathing &#?[A-Za-z0-9]+; */
 static size_t
 char_entity(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+				char *data, size_t UNUSED offset, size_t size) {
 	size_t end = 1;
 	struct buf work;
 	if (end < size && data[end] == '#') end += 1;
@@ -532,7 +534,7 @@ char_entity(struct buf *ob, struct render *rndr,
 /* char_langle_tag • '<' when tags or autolinks are allowed */
 static size_t
 char_langle_tag(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+				char *data, size_t UNUSED offset, size_t size) {
 	enum mkd_autolink altype = MKDA_NOT_AUTOLINK;
 	size_t end = tag_length(data, size, &altype);
 	struct buf work = { data, end, 0, 0, 0 };
@@ -1157,7 +1159,7 @@ parse_atxheader(struct buf *ob, struct render *rndr,
 	struct buf work = { data, 0, 0, 0, 0 };
 
 	if (!size || data[0] != '#') return 0;
-	while (level < size && level < 6 && data[level] == '#') level += 1;
+	while (((size_t) level) < size && level < 6 && data[level] == '#') level += 1;
 	for (i = level; i < size && (data[i] == ' ' || data[i] == '\t');
 							i += 1);
 	work.data = data + i;
@@ -1180,7 +1182,7 @@ htmlblock_end(struct html_tag *tag, char *data, size_t size) {
 	/* assuming data[0] == '<' && data[1] == '/' already tested */
 
 	/* checking tag is a match */
-	if (tag->size + 3 >= size
+	if (((size_t) (tag->size + 3)) >= size
 	|| strncasecmp(data + 2, tag->text, tag->size)
 	|| data[tag->size + 2] != '>')
 		return 0;
@@ -1507,13 +1509,13 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 	/* clean-up */
 	bufrelease(text);
 	lr = rndr.refs.base;
-	for (i = 0; i < rndr.refs.size; i += 1) {
+	for (i = 0; i < (size_t) rndr.refs.size; i += 1) {
 		bufrelease(lr[i].id);
 		bufrelease(lr[i].link);
 		bufrelease(lr[i].title); }
 	arr_free(&rndr.refs);
 	assert(rndr.work.size == 0);
-	for (i = 0; i < rndr.work.asize; i += 1)
+	for (i = 0; i < (size_t) rndr.work.asize; i += 1)
 		bufrelease(rndr.work.item[i]);
 	parr_free(&rndr.work); }
 

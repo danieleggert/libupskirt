@@ -220,7 +220,7 @@ parr_insert(struct parray *parr, int nb, int n) {
 		dst = src + nb * sizeof (void *);
 		len = (parr->size - n) * sizeof (void *);
 		memmove(dst, src, len);
-		for (i = 0; i < nb; ++i)
+		for (i = 0; i < (size_t) nb; ++i)
 			parr->item[n + i] = 0; }
 	parr->size += nb;
 	return 1; }
