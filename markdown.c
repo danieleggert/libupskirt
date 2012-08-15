@@ -741,7 +741,6 @@ char_link(struct buf *ob, struct render *rndr,
 		else parse_inline(content, rndr, data + 1, txt_e - 1); }
 
 	/* calling the relevant rendering function */
-	ret = 0;
 	if (is_img) {
 		if (ob->size && ob->data[ob->size - 1] == '!') ob->size -= 1;
 		ret = rndr->make.image(ob, link, title, content,
